@@ -13,18 +13,29 @@ class ESPController {
     // [POST] /esp/connect/:id
     //
     connect(req, res, next) {
-        console.log(req.query);
-        console.log(req.params.id);
-        let jsonRes = [];
+        let jsonRes = {
+            _id: generateObjectID().toString(),
+            _idESP: req.params.id,
+            numDevices: parseInt(req.query.numDevices),
+        };
+        const devices = [];
+        const pinESP = ['D1', 'D2', 'D5', 'D6']
         for (let index = 0; index < parseInt(req.query.numDevices); index++) {
             const idGenerated = generateObjectID();
-            console.log(idGenerated.toString());
-            jsonRes.push(idGenerated.toString());
+            const pin = {
+                _id: idGenerated,
+                pin: pinESP[index]
+            }
+
+            devices.push(pin);
         }
+        jsonRes.devices = devices;
 
         res.json(jsonRes);
 
-
+        const esp = ESP(jsonRes);
+        esp.save()
+            .catch(next)
     }
 
 }
