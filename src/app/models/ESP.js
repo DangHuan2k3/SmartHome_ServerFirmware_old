@@ -8,14 +8,14 @@ const Device = new Schema({
     pin: { type: String, required: true },
     type: { type: String, required: false }, // FAN, DOOR, 
     isConnected: { type: Boolean, default: false },
-    status: { type: Number, default: -1 } // -1: notConnected, 0: OFF, 1: ON
+    status: { type: Number, default: 0 } // -1: notConnected, 0: OFF, 1: ON
 }, {
     timestamps: true,
 });
 
 const ESP = new Schema({
     name: { type: String, required: false },
-    _idESP: {type: String, maxLength: 255},
+    _idESP: { type: String, maxLength: 255 },
     numDevices: { type: Number, required: true },
     isConnected: { type: Boolean, default: false },
     devices: [Device],
@@ -25,4 +25,4 @@ const ESP = new Schema({
 });
 
 
-module.exports = mongoose.model('ESPs', ESP);
+module.exports = mongoose.model('esp', ESP);

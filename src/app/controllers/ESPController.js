@@ -1,6 +1,8 @@
 const ESP = require('../models/ESP');
+const { createNewESP } = require('../../util/esp');
 const { generateObjectID } = require('../../util/mongoose');
 const { json } = require('express');
+const { consoleLog } = require('@ngrok/ngrok');
 
 class ESPController {
 
@@ -10,32 +12,25 @@ class ESPController {
     //     res.json(req.body);
     // }
 
-    // [POST] /esp/connect/:id
-    //
+    // [GET] /esp/connect/:id?numDevices=
     connect(req, res, next) {
-        let jsonRes = {
-            _id: generateObjectID().toString(),
-            _idESP: req.params.id,
-            numDevices: parseInt(req.query.numDevices),
-        };
-        const devices = [];
-        const pinESP = ['D1', 'D2', 'D5', 'D6']
-        for (let index = 0; index < parseInt(req.query.numDevices); index++) {
-            const idGenerated = generateObjectID();
-            const pin = {
-                _id: idGenerated,
-                pin: pinESP[index]
-            }
+        ESP.findOne({ _idESP: req.params.id })
+            .then((esp) => {
+                if (esp) {
+                    console.log('existed in db');
+                    return Promise.resolve(esp);
+                } else {
+                    const jsonNewESP = createNewESP(req.params.id, req.query.numDevices);
+                    const espNew = ESP(jsonNewESP);
+                    espNew.save();
+                    return Promise.resolve(espNew);
+                }
+            }).then((savedEsp) => {
+                res.json(savedEsp)
+            })
+            .catch(next);
 
-            devices.push(pin);
-        }
-        jsonRes.devices = devices;
 
-        res.json(jsonRes);
-
-        const esp = ESP(jsonRes);
-        esp.save()
-            .catch(next)
     }
 
 }
