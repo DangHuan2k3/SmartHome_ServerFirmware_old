@@ -29,10 +29,53 @@ class ESPController {
                 res.json(savedEsp)
             })
             .catch(next);
-
-
     }
 
+
+    // [POST] /:id
+    async get(req, res, next) {
+        const devicesNewStatus = req.body.devices;
+        try {
+            // Use Promise.all() to await all async operations and handle errors properly
+            await Promise.all(devicesNewStatus.map(async (device) => {
+                const foundDevice = await ESP.findOne({
+                    _idESP: req.params.id,
+                    devices: {
+                        $elemMatch: {
+                            _id: device.id
+                        }
+                    }
+                });
+                if (!foundDevice) {
+                    throw new Error(`Not found ESP with _idESP = ${req.params.id} or device with ${device.id}`);
+                }
+
+                await ESP.updateOne({
+                    _idESP: req.params.id,
+                    devices: {
+                        $elemMatch: {
+                            _id: device.id
+                        }
+                    }
+                }, {
+                    $set: {
+                        'devices.$.status': (String('on').valueOf() == new String(device.status).valueOf()) ? 1 : 0,
+                    }
+                });
+            }));
+            // If all updates are successful, send success response
+            res.status(201).json({
+                'text': 'Successful'
+            });
+        } catch (error) {
+            // If any error occurs during the process, send failure response
+            console.error(error);
+            res.status(406).json({
+                'text': 'Failure'
+            });
+        }
+
+    }
 }
 
 module.exports = new ESPController; // Tạo một instance cho TestController
