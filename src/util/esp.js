@@ -22,5 +22,19 @@ module.exports = {
         newESP.devices = devices;
 
         return newESP;
+    },
+
+    getDevicesStatus: function (esp) {
+        devicesStatus = []
+
+        esp.devices.map((device) => {
+            devicesStatus.push({
+                "_id": device._id,
+                "status": device.status
+            })
+        })
+
+        return devicesStatus
     }
+
 }

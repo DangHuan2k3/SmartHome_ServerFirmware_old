@@ -1,5 +1,5 @@
 const ESP = require('../models/ESP');
-const { createNewESP } = require('../../util/esp');
+const { createNewESP, getDevicesStatus } = require('../../util/esp');
 const { generateObjectID } = require('../../util/mongoose');
 const { json } = require('express');
 const { consoleLog } = require('@ngrok/ngrok');
@@ -33,10 +33,9 @@ class ESPController {
 
 
     // [POST] /:id
-    async get(req, res, next) {
+    async post(req, res, next) {
         const devicesNewStatus = req.body.devices;
         try {
-            // Use Promise.all() to await all async operations and handle errors properly
             await Promise.all(devicesNewStatus.map(async (device) => {
                 const foundDevice = await ESP.findOne({
                     _idESP: req.params.id,
@@ -63,18 +62,45 @@ class ESPController {
                     }
                 });
             }));
-            // If all updates are successful, send success response
+
             res.status(201).json({
                 'text': 'Successful'
             });
         } catch (error) {
-            // If any error occurs during the process, send failure response
             console.error(error);
             res.status(406).json({
                 'text': 'Failure'
             });
         }
+    }
 
+    // [POST] /:id
+    async get(req, res, next) {
+        ESP.findOne({ _idESP: req.params.id })
+            .then((esp) => {
+                if (esp) {
+                    console.log('existed in db');
+                    return Promise.resolve(esp);
+                } else {
+                    throw new Error(`Not found esp with _idESP = ${req.params.id}`)
+                }
+            }).then((savedEsp) => {
+                var resJson = ESP(savedEsp);
+                resJson.devices = getDevicesStatus(savedEsp);
+
+                res.status(200).json({
+                    _idESP: resJson._idESP,
+                    numDevices: resJson.numDevices,
+                    isConnected: resJson.isConnected,
+                    devices: resJson.devices,
+                    _id: resJson._id
+                });
+            })
+            .catch(err => {
+                res.status(404).json({
+                    'text': err.message.toString()
+                });
+            });
     }
 }
 
