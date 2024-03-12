@@ -32,13 +32,13 @@ class ESPController {
     }
 
 
-    // [POST] /:id
+    // [POST] /:idESP
     async post(req, res, next) {
         const devicesNewStatus = req.body.devices;
         try {
             await Promise.all(devicesNewStatus.map(async (device) => {
                 const foundDevice = await ESP.findOne({
-                    _idESP: req.params.id,
+                    _idESP: req.params.idESP,
                     devices: {
                         $elemMatch: {
                             _id: device.id
@@ -46,11 +46,11 @@ class ESPController {
                     }
                 });
                 if (!foundDevice) {
-                    throw new Error(`Not found ESP with _idESP = ${req.params.id} or device with ${device.id}`);
+                    throw new Error(`Not found ESP with _idESP = ${req.params.idESP} or device with ${device.id}`);
                 }
 
                 await ESP.updateOne({
-                    _idESP: req.params.id,
+                    _idESP: req.params.idESP,
                     devices: {
                         $elemMatch: {
                             _id: device.id
@@ -74,15 +74,15 @@ class ESPController {
         }
     }
 
-    // [POST] /:id
+    // [POST] /:idESP
     async get(req, res, next) {
-        ESP.findOne({ _idESP: req.params.id })
+        ESP.findOne({ _idESP: req.params.idESP })
             .then((esp) => {
                 if (esp) {
                     console.log('existed in db');
                     return Promise.resolve(esp);
                 } else {
-                    throw new Error(`Not found esp with _idESP = ${req.params.id}`)
+                    throw new Error(`Not found esp with _idESP = ${req.params.idESP}`)
                 }
             }).then((savedEsp) => {
                 var resJson = ESP(savedEsp);

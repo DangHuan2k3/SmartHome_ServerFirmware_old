@@ -6,7 +6,7 @@ const Schema = mongoose.Schema;
 const Device = new Schema({
     name: { type: String, required: false },
     pin: { type: String, required: true },
-    type: { type: String, required: false }, // FAN, DOOR, 
+    type: { type: String, required: false, default: "FAN" }, // FAN, DOOR, LIGHT
     isConnected: { type: Boolean, default: true },
     status: { type: Number, default: 0 } // -1: notConnected, 0: OFF, 1: ON
 }, {
@@ -19,7 +19,6 @@ const ESP = new Schema({
     numDevices: { type: Number, required: true },
     isConnected: { type: Boolean, default: true },
     devices: [Device],
-
 }, {
     timestamps: true,
 });
