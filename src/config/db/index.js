@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 async function connect() {
     try {
-        await mongoose.connect('mongodb://127.0.0.1:27017/SmartHome');
+        await mongoose.connect('mongodb+srv://huan:zmgGxoAE2beOZO2h@tugino.smpitlj.mongodb.net/ ');
 
         console.log('Connect successfully!!!');
     } catch (error) {
